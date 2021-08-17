@@ -73,10 +73,28 @@ class TradeApi:
 
     def buy_market_order(self, ticker, cost, cnt):
         if self.release == True:
-            time.sleep(0.3)
-            self.upbit.buy_market_order(ticker, cnt*cost)
+            res = self.upbit.buy_market_order(ticker, cnt*cost)
+            uuid = res['uuid']
+            cnt = 0
+            while True:
+                sleep(1)
+                cur_cost = pyupbit.get_current_price(ticker)
+                if cur_cost < cost:
+                    self.upbit.cancel_order(uuid)
+                    print('buy market order is canceled. cur_cost{}, cost{}'.format(cur_cost, cost))
+                    return 0,0
+                balance = self.upbit.get_balance(ticker)
+                if balance != 0:
+                    return cur_cost, balance
+                if cnt > 10:
+                    self.upbit.cancel_order(uuid)
+                    print('buy market order is canceled. cnt is 10')
+                    return 0,0
+                cnt+=1
+            return 0,0
+
         else :
             self.balance -= cost * cnt
-
+            return cost * cnt
 
 

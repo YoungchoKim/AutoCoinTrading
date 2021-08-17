@@ -40,8 +40,11 @@ class Account:
             balance = self.trade.get_balance()
             balance = balance * 0.3
             cnt = round(balance / cost, 3)
-            self.trade.buy_market_order(ticker, cost, cnt)
-            self.bought_dict[ticker] = [cost, cnt]
+            bought_cost, bought_balance = self.trade.buy_market_order(ticker, cost, cnt)
+            if bought_cost == 0:
+                return None
+            
+            self.bought_dict[ticker] = [bought_cost, bought_balance]
             self.write_bought_dict(self.bought_dict)
             
             
