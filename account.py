@@ -1,4 +1,5 @@
 from collections import defaultdict
+import logging
 class Account:
 
     def __init__(self, release, trade):
@@ -11,7 +12,7 @@ class Account:
         user_file_stream = user_file.readlines()
         user_file.close()
         self.bought_dict = self.stream_to_dict(user_file_stream)
-        print('Account init success. release({})'.format(release))
+        logging.info('Account init success. release({})'.format(release))
 
 
     def stream_to_dict(self, user_file_stream):

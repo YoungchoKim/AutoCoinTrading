@@ -1,6 +1,7 @@
 import tradeapi
 import time
 from collections import defaultdict,deque
+import logging
 class Coin:
     def __init__(self, trade):
         self.trade = trade # tradeapi.TradeApi(release)
@@ -13,16 +14,16 @@ class Coin:
         self.min_dict = defaultdict(lambda : 10000000000) 
         self.max_dict = defaultdict(int)
         self.target_list_dict = defaultdict(deque)
-        print('ticker_list: {}'.format(self.ticker_list))
+        logging.info('ticker_list: {}'.format(self.ticker_list))
         price = self.trade.get_current_price(self.ticker_list)
-        print('price: {}'.format(price.keys()))
+        logging.info('price: {}'.format(price.keys()))
         self.ticker_list = list(price.keys())
         time.sleep(1)
         for i in range(self.min_max_time):
             price = self.trade.get_current_price(self.ticker_list)
             for ticker in self.ticker_list:
                 if ticker not in price.keys():
-                    print('ticker not in price keys. ticker: {}'.format(ticker))
+                    logging.info('ticker not in price keys. ticker: {}'.format(ticker))
                     continue
                 cost = float(price[ticker])
                 self.price_dict_cnt[(ticker, cost)] += 1

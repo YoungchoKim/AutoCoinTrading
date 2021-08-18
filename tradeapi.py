@@ -1,6 +1,7 @@
 import pyupbit
 import time
 from collections import defaultdict
+import logging
 class TradeApi:
     def __init__(self, release):
         self.release = release
@@ -19,7 +20,7 @@ class TradeApi:
             secret = lines[1].strip()
             f.close()
             self.upbit = pyupbit.Upbit(access, secret)
-        print('trade api init success. release({})'.format(self.release))
+        logging.info('trade api init success. release({})'.format(self.release))
 
     def get_current_price(self, tickers):
         if self.release == True:
@@ -28,7 +29,7 @@ class TradeApi:
         else:
             if self.debug_cur_line >= self.debug_max_line - 1:
                 if self.debug_end == False:
-                    print('debug end. balance : {}'.format(self.balance))
+                    logging.info('debug end. balance : {}'.format(self.balance))
                 self.debug_end = True
                 return {}
             self.debug_end = False
@@ -77,18 +78,18 @@ class TradeApi:
             uuid = res['uuid']
             cnt = 0
             while True:
-                sleep(1)
+                time.sleep(1)
                 cur_cost = pyupbit.get_current_price(ticker)
                 if cur_cost < cost:
                     self.upbit.cancel_order(uuid)
-                    print('buy market order is canceled. cur_cost{}, cost{}'.format(cur_cost, cost))
+                    logging.info('buy market order is canceled. cur_cost{}, cost{}'.format(cur_cost, cost))
                     return 0,0
                 balance = self.upbit.get_balance(ticker)
                 if balance != 0:
                     return cur_cost, balance
                 if cnt > 10:
                     self.upbit.cancel_order(uuid)
-                    print('buy market order is canceled. cnt is 10')
+                    logging.info('buy market order is canceled. cnt is 10')
                     return 0,0
                 cnt+=1
             return 0,0
