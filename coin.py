@@ -75,9 +75,9 @@ class Coin:
             if ticker in bought_dict:
                 if len(bought_dict[ticker]) == 0:
                     continue
-                cost,cnt = bought_dict[ticker]
-                if (latest_price >= float(cost) * 1.01) or (latest_price <= float(cost) * 0.99):
-                    sell_list.append((ticker,latest_price))
+                bought_cost,cnt = bought_dict[ticker]
+                if (cost >= float(bought_cost) * 1.01) or ( cost <= float(bought_cost) * 0.99):
+                    sell_list.append((ticker, cost))
                 continue
 
             if latest_price >= self.max_dict[ticker] * 1.01:
