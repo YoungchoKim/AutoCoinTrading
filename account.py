@@ -46,7 +46,7 @@ class Account:
                 return None
             
             self.bought_dict[ticker] = [bought_cost, bought_balance]
-            self.write_bought_dict(self.bought_dict)
+        self.write_bought_dict(self.bought_dict)
             
             
             
@@ -55,6 +55,6 @@ class Account:
             buy_cost, cnt = self.bought_dict[ticker]
             self.bought_dict[ticker] = []
             self.trade.sell_market_order(ticker, cost, float(cnt))
-        
+        self.write_bought_dict(self.bought_dict)
 
 
