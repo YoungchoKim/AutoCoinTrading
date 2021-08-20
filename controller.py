@@ -24,13 +24,11 @@ class Controller:
         while True:
             date, buy_list, sell_list = self.coin.check_cur_state(bought_dict)
             if len(buy_list) > 0:
-                logging.info('buy: ' + date, end=' ')
-                logging.info(buy_list)
+                logging.info('buy: {}'.format(buy_list))
                 self.account.buy_market_order(buy_list)
             
             if len(sell_list) > 0:
-                logging.info('sell: ' + date, end=' ')
-                logging.info(sell_list)
+                logging.info('sell: {}'.format(sell_list))
                 self.account.sell_market_order(sell_list)
 
 

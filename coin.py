@@ -38,7 +38,7 @@ class Coin:
                     continue
                 cost = float(price[ticker])
                 self.target_list_dict[ticker].append(cost)
-                
+        logging.info('coin init success') 
     def get_latest_price(self, ticker):
         sum_cost = 0
         for cost in self.target_list_dict[ticker]:
