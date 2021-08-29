@@ -76,7 +76,7 @@ class Coin:
                 if len(bought_dict[ticker]) == 0:
                     continue
                 bought_cost,cnt = bought_dict[ticker]
-                if (cost >= float(bought_cost) * 1.01) or ( cost <= float(bought_cost) * 0.99):
+                if cost <= float(bought_cost) * 0.99:
                     sell_list.append((ticker, cost))
                 continue
 

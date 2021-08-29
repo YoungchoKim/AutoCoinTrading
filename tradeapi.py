@@ -80,6 +80,7 @@ class TradeApi:
                 cur_cost = pyupbit.get_current_price(ticker)
                 balance = self.upbit.get_balance(ticker)
                 if balance != 0:
+                    self.upbit.sell_limit_order(ticker, cur_cost*1.01, balance)
                     return cur_cost, balance
 
         else :
