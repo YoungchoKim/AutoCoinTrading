@@ -77,14 +77,26 @@ class TradeApi:
             res = self.upbit.buy_market_order(ticker, cnt*cost)
             while True:
                 time.sleep(1)
-                cur_cost = pyupbit.get_current_price(ticker)
                 balance = self.upbit.get_balance(ticker)
+                cur_cost = pyupbit.get_current_price(tickers)
+                #TODO: compare cur_cost and cost, cancel buy_market_order
                 if balance != 0:
-                    self.upbit.sell_limit_order(ticker, cur_cost*1.01, balance)
-                    return cur_cost, balance
+                    cur_cost = 0
+                    have_list = self.upbit.get_balances()
+                    for boughtCoin in have_list:
+                        if boughtCoin['currency'] == ticker:
+                            cur_cost = boughtCoin['avg_buy_price']
+                    if cur_cost == 0:
+                        logging.info('not found bought ticker')
+                    cur_cost = int(cur_cost*1.01) + 1
+                    res = self.upbit.sell_limit_order(ticker, cur_cost, balance)
+                    logging.info('sell limit order res:{}'.format(res))
+                    return cur_cost, balance, res['uuid']
 
         else :
             self.balance -= cost * cnt
             return cost,  cnt
 
-
+    def cancel_order(self, uuid):
+        res = self.upbit.cancel_order(uuid)
+        print(res)

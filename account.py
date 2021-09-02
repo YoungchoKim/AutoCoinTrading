@@ -39,13 +39,18 @@ class Account:
     def buy_market_order(self, buy_list):
         for ticker, cost in buy_list:
             balance = self.trade.get_balance()
-            balance = balance * 0.3
+            if balance == None:
+                logging.error('balance is zero or network error')
+            balance = float(balance) * 0.3
             cnt = round(balance / cost, 3)
-            bought_cost, bought_balance = self.trade.buy_market_order(ticker, cost, cnt)
+            if cnt == 0:
+                logging.info('cnt is zero')
+                return None
+            bought_cost, bought_balance, uuid = self.trade.buy_market_order(ticker, cost, cnt)
             if bought_cost == 0:
                 return None
             
-            self.bought_dict[ticker] = [bought_cost, bought_balance]
+            self.bought_dict[ticker] = [bought_cost, bought_balance, uuid]
             logging.info('buy, ticker:{} cost:{} balance:{}'.format(ticker, bought_cost, bought_balance))
         self.write_bought_dict(self.bought_dict)
             
@@ -53,10 +58,12 @@ class Account:
             
     def sell_market_order(self, sell_list):
         for ticker, cost in sell_list:
-            buy_cost, cnt = self.bought_dict[ticker]
+            buy_cost, cnt, uuid = self.bought_dict[ticker]
+            self.cancel_order(uuid)
             self.bought_dict[ticker] = []
             self.trade.sell_market_order(ticker, cost, float(cnt))
             logging.info('sell, ticker:{} cost:{} '.format(ticker, cost))
         self.write_bought_dict(self.bought_dict)
 
-
+    def cancel_order(self, uuid):
+        self.trade.cancel_order(uuid)
