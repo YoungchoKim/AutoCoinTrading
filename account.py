@@ -59,7 +59,8 @@ class Account:
     def sell_market_order(self, sell_list):
         for ticker, cost in sell_list:
             buy_cost, cnt, uuid = self.bought_dict[ticker]
-            self.cancel_order(uuid)
+            if uuid != None:
+                self.cancel_order(uuid)
             self.bought_dict[ticker] = []
             self.trade.sell_market_order(ticker, cost, float(cnt))
             logging.info('sell, ticker:{} cost:{} '.format(ticker, cost))

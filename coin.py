@@ -76,11 +76,11 @@ class Coin:
                 if len(bought_dict[ticker]) == 0:
                     continue
                 bought_cost,cnt,uuid = bought_dict[ticker]
-                if cost <= float(bought_cost) * 0.99:
+                if cost <= (self.min_dict[ticker] + self.max_dict[ticker])/2:
                     sell_list.append((ticker, cost))
                 continue
 
-            if latest_price >= self.max_dict[ticker] * 1.01:
+            if latest_price > self.max_dict[ticker] *1.01 :
                 buy_list.append((ticker, latest_price))
         return date, buy_list, sell_list
 

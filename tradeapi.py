@@ -2,6 +2,7 @@ import pyupbit
 import time
 from collections import defaultdict
 import logging
+import priceQuotation
 class TradeApi:
     def __init__(self, release):
         self.release = release
@@ -66,9 +67,9 @@ class TradeApi:
 
     def sell_market_order(self, ticker, cost, cnt):
         if self.release == True:
-            time.sleep(0.3)
             balance = self.upbit.get_balance(ticker)
             self.upbit.sell_market_order(ticker, balance)
+            time.sleep(0.3)
         else:
             self.balance += cost * cnt
 
@@ -78,20 +79,24 @@ class TradeApi:
             while True:
                 time.sleep(1)
                 balance = self.upbit.get_balance(ticker)
-                cur_cost = pyupbit.get_current_price(tickers)
+                cur_cost = pyupbit.get_current_price(ticker)
                 #TODO: compare cur_cost and cost, cancel buy_market_order
                 if balance != 0:
                     cur_cost = 0
                     have_list = self.upbit.get_balances()
                     for boughtCoin in have_list:
-                        if boughtCoin['currency'] == ticker:
-                            cur_cost = boughtCoin['avg_buy_price']
+                        if boughtCoin['currency'] == ticker.replace('KRW-',''):
+                            cur_cost = float(boughtCoin['avg_buy_price'])
                     if cur_cost == 0:
                         logging.info('not found bought ticker')
-                    cur_cost = int(cur_cost*1.01) + 1
+                    cur_cost = priceQuotation.get_price(float(cur_cost*1.01)+1)
+                    # TODO: get current price > cur_cost : sell_market_order
                     res = self.upbit.sell_limit_order(ticker, cur_cost, balance)
-                    logging.info('sell limit order res:{}'.format(res))
-                    return cur_cost, balance, res['uuid']
+                    logging.info('sell limit order res:{}, cur_cost:{}'.format(res, cur_cost))
+                    uuid = None
+                    if 'error' not in res:
+                        uuid = res['uuid']
+                    return cur_cost, balance, uuid
 
         else :
             self.balance -= cost * cnt
@@ -99,4 +104,5 @@ class TradeApi:
 
     def cancel_order(self, uuid):
         res = self.upbit.cancel_order(uuid)
+        time.sleep(0.5)
         print(res)
