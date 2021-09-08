@@ -72,9 +72,7 @@ class Coin:
             self.target_list_dict[ticker].append(cost)
             latest_price = self.get_latest_price(ticker)
 
-            if ticker in bought_dict:
-                if len(bought_dict[ticker]) == 0:
-                    continue
+            if (ticker in bought_dict) and (len(bought_dict[ticker]) != 0):
                 bought_cost,cnt,uuid = bought_dict[ticker]
                 if cost <= (self.min_dict[ticker] + self.max_dict[ticker])/2:
                     sell_list.append((ticker, cost))

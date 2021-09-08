@@ -83,7 +83,7 @@ class TradeApi:
                 #TODO: compare cur_cost and cost, cancel buy_market_order
                 if balance != 0:
                     cur_cost = 0
-                    have_list = self.upbit.get_balances()
+                    have_list = self.get_have_list()
                     for boughtCoin in have_list:
                         if boughtCoin['currency'] == ticker.replace('KRW-',''):
                             cur_cost = float(boughtCoin['avg_buy_price'])
@@ -106,3 +106,6 @@ class TradeApi:
         res = self.upbit.cancel_order(uuid)
         time.sleep(0.5)
         print(res)
+
+    def get_have_list(self):
+        return self.upbit.get_balances()

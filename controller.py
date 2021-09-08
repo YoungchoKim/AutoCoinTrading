@@ -22,6 +22,7 @@ class Controller:
         buy_list = []
         sell_list = []
         while True:
+            self.account.refresh_bought_dict()
             date, buy_list, sell_list = self.coin.check_cur_state(bought_dict)
             if len(buy_list) > 0:
                 logging.info('buy(before): {}'.format(buy_list))

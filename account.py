@@ -68,3 +68,13 @@ class Account:
 
     def cancel_order(self, uuid):
         self.trade.cancel_order(uuid)
+
+    def refresh_bought_dict(self):
+        have_list = self.trade.get_have_list()
+        cur_bought_list = []
+        for boughtCoin in have_list:
+            cur_bought_list.append('KRW-{}'.format(boughtCoin['currency']))
+        for k in self.bought_dict.keys():
+            if k not in cur_bought_list:
+                self.bought_dict[k] = []
+        
