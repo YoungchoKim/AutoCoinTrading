@@ -7,7 +7,7 @@ class Coin:
         self.trade = trade # tradeapi.TradeApi(release)
         self.ticker_list = self.trade.get_tickers(fiat='KRW')
         self.price_dict = defaultdict(int)
-        self.target_time = 10
+        self.target_time = 3
         self.min_max_time = 600
         self.price_dict_cnt = defaultdict(int)
         self.price_list_dict = defaultdict(deque)
@@ -72,9 +72,9 @@ class Coin:
             self.target_list_dict[ticker].append(cost)
             latest_price = self.get_latest_price(ticker)
 
-            if (ticker in bought_dict) and (len(bought_dict[ticker]) != 0):
+            if (ticker in bought_dict) and (len(bought_dict[ticker]) == 3):
                 bought_cost,cnt,uuid = bought_dict[ticker]
-                if cost <= (self.min_dict[ticker] + self.max_dict[ticker])/2:
+                if cost < self.max_dict[ticker] * 0.99:
                     sell_list.append((ticker, cost))
                 continue
 
