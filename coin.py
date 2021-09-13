@@ -7,7 +7,7 @@ class Coin:
         self.trade = trade # tradeapi.TradeApi(release)
         self.ticker_list = self.trade.get_tickers(fiat='KRW')
         self.price_dict = defaultdict(int)
-        self.target_time = 3
+        self.target_time = 2
         self.min_max_time = 600
         self.price_dict_cnt = defaultdict(int)
         self.price_list_dict = defaultdict(deque)
