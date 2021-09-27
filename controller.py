@@ -12,7 +12,7 @@ class Controller:
         logging.basicConfig(filename='app.log', filemode='w', format='[%(asctime)s] %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
         logging.info('log init success')
         
-        mode = 'debug'
+        mode = 'release'
         TimeControl.set_mode(mode)
         self.account = Account(mode)
         self.tAlgo = YunjooAlgo(mode)

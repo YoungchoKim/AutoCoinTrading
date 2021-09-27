@@ -67,7 +67,11 @@ class YunjooAlgo(TradeAlgorithm):
         self.ohlcv = self.queue.get()
         ticket_list = []
         for ticker in self.ticker_list:
-            df = self.ohlcv['day'][ticker].tail(25)
+            df = self.ohlcv['day'][ticker]
+            if 'error' in df:
+                print(df['error'])
+                continue
+            df = df.tail(25)
             if ticker not in [coin.get_ticker() for coin in have_coin_list]:
                 self.check_buy_coin(df, ticker, ticket_list)
             else:
