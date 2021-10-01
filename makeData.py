@@ -4,6 +4,7 @@ from TimeControl import TimeControl
 import time
 import pandas as pd
 import os
+import logging
 
 def make_minute1(ticker_list, init_date, count):
     df = {}
@@ -19,11 +20,11 @@ def make_minute1(ticker_list, init_date, count):
                 df[ticker].append(pyupbit.get_ohlcv(ticker, count=cnt, interval='minute1', to=date))
             if len(df[ticker][-1]) == 0:
                 remove_ticker_list.append(ticker)
-                print('remove ticker(minute): {}'.format(ticker))
+                logging.info('remove ticker(minute): {}'.format(ticker))
                 break
             date = df[ticker][-1].index[0]
             time.sleep(0.1)
-        print('Please wait a minute(minute). {}/{}'.format(idx+1, N))
+        logging.info('Please wait a minute(minute). {}/{}'.format(idx+1, N))
         df[ticker] = pd.concat(df[ticker])
         df[ticker] = df[ticker].sort_index()
         df[ticker].to_csv('debug/min1-{}.csv'.format(ticker))
@@ -43,11 +44,11 @@ def make_day(ticker_list, init_date, count):
                 df[ticker].append(pyupbit.get_ohlcv(ticker, count=cnt, interval='day', to=date))
             if len(df[ticker][-1]) == 0:
                 remove_ticker_list.append(ticker)
-                print('remove ticker(minute): {}'.format(ticker))
+                logging.info('remove ticker(minute): {}'.format(ticker))
                 break
             date = df[ticker][-1].index[0]
             time.sleep(0.1)
-        print('Please wait a minute(day). {}/{}'.format(idx+1, N))
+        logging.info('Please wait a minute(day). {}/{}'.format(idx+1, N))
         df[ticker] = pd.concat(df[ticker])
         df[ticker] = df[ticker].sort_index()
         df[ticker].to_csv('debug/day-{}.csv'.format(ticker))

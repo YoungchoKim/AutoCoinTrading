@@ -8,10 +8,11 @@ from TradeTicket import TradeTicket
 import State
 import time 
 from TimeControl import TimeControl
+import logging
 
 class YunjooAlgo(TradeAlgorithm):
     def __init__(self, mode):
-        print('init yunjoo algorithm. mode:{}'.format(mode))
+        logging.info('init yunjoo algorithm. mode:{}'.format(mode))
         self.queue = Queue()
         if mode == 'release':
             self.pInfo = PriceInfo(TradeReleaseAPI(), self.queue)
@@ -29,7 +30,7 @@ class YunjooAlgo(TradeAlgorithm):
             if v >= 300:
                 self.ticker_list.append(k)
         self.pInfo.set_tickers(self.ticker_list)
-        print('ticker list:{}, len:{}'.format(self.ticker_list, len(self.ticker_list)))
+        logging.info('ticker list:{}, len:{}'.format(self.ticker_list, len(self.ticker_list)))
 
     def check_buy_coin(self, df, ticker, ticket_list):
         success = True
@@ -69,7 +70,7 @@ class YunjooAlgo(TradeAlgorithm):
         for ticker in self.ticker_list:
             df = self.ohlcv['day'][ticker]
             if 'error' in df:
-                print(df['error'])
+                logging.info(df['error'])
                 continue
             df = df.tail(25)
             if ticker not in [coin.get_ticker() for coin in have_coin_list]:
@@ -77,7 +78,7 @@ class YunjooAlgo(TradeAlgorithm):
             else:
                 self.check_sell_coin(df, ticker, ticket_list, have_coin_list)
         if len(ticket_list) != 0:    
-            print(ticket_list)
+            logging.info(ticket_list)
         return ticket_list
 
 if __name__=='__main__':

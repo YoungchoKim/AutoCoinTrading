@@ -1,4 +1,5 @@
 import time
+import logging
 
 class TimeControl:
     mode = 'debug'
@@ -23,7 +24,7 @@ class TimeControl:
     def set_min_list(cls, min_list):
         cls.debug_min_list = min_list
         cls.debug_min_list_len = len(cls.debug_min_list)
-        print(cls.debug_min_list, len(cls.debug_min_list))
+        logging.info(cls.debug_min_list, len(cls.debug_min_list))
     
     @classmethod
     def get_day(cls):

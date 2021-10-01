@@ -42,7 +42,7 @@ class Controller:
         new_coin_list = []
         have_ticker_list = [coin.get_ticker() for coin in self.coin_list]
         if len(have_ticker_list) != 0:
-            print('have_ticker_list:', have_ticker_list)
+            logging.info('have_ticker_list:', have_ticker_list)
         for coin in coin_list:
             if coin.get_ticker() in have_ticker_list:
                 for have_coin in self.coin_list:
