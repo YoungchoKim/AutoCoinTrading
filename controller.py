@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import os
 import logging
 import logging.config
 import time
@@ -9,15 +10,23 @@ from account import Account
 
 class Controller:
     def __init__(self):
-        logging.basicConfig(filename='app.log', filemode='w', format='[%(asctime)s] %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-        logging.info('log init success')
-        
+        self.log_init()
         mode = 'release'
         TimeControl.set_mode(mode)
         self.account = Account(mode)
         self.tAlgo = YunjooAlgo(mode)
         self.sleep_time = TimeControl.get_sleep_time()
         self.coin_list = []
+
+    def log_init(self):
+        if not os.path.isdir('log'):
+            os.mkdir('log')
+        now = time.strftime('%c', time.localtime(time.time()))
+        now = now.replace(' ','_')
+        print(now)
+        logging.basicConfig(filename='log/{}.log'.format(now), filemode='w', format='[%(asctime)s] %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+        logging.info('log init success')
+
 
     def run(self):
         while True:
@@ -42,7 +51,7 @@ class Controller:
         new_coin_list = []
         have_ticker_list = [coin.get_ticker() for coin in self.coin_list]
         if len(have_ticker_list) != 0:
-            logging.info('have_ticker_list:', have_ticker_list)
+            logging.info('have_ticker_list: {}'.format(have_ticker_list))
         for coin in coin_list:
             if coin.get_ticker() in have_ticker_list:
                 for have_coin in self.coin_list:

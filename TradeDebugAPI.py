@@ -22,7 +22,7 @@ class TradeDebugAPI( TradeAPI ):
             cls.df['min1'][ticker] = pd.read_csv('debug/min1-{}.csv'.format(ticker), index_col=[0])
 
         cls.max_len = len(cls.df['min1']['KRW-BTC'])
-        logging.info('max_len : ', cls.max_len)
+        print('max_len : ', cls.max_len)
         cls.min1 = cls.df['min1']['KRW-BTC'].index[200]
         cls.day = cls.df['day']['KRW-BTC'].index[200]
         cls.min_idx = 200
@@ -94,12 +94,12 @@ class TradeDebugAPI( TradeAPI ):
                 cls.min_idx += 1
 
             if cls.min_idx >= cls.max_len-1:
-                logging.info('balance: {}'.format(cls.balance))
+                print('balance: {}'.format(cls.balance))
                 for tick,value in cls.have_dict.items():
                     cost, cnt = value
-                    logging.info(tick, ' cost: {}, count: {}'.format(cost, cnt))
+                    print(tick, ' cost: {}, count: {}'.format(cost, cnt))
                     cls.balance += cnt * cls.df['min1'][tick].iloc[-1, 3]
-                logging.info('total: {}'.format(cls.balance))
+                print('total: {}'.format(cls.balance))
                 quit()
 
 
@@ -153,7 +153,7 @@ class TradeDebugAPI( TradeAPI ):
 
 if __name__ == '__main__':
     dApi = TradeDebugAPI()
-    logging.info(dApi.ticker_list)
-    logging.info(dApi.df['min1']['KRW-BTC'].index)
+    print(dApi.ticker_list)
+    print(dApi.df['min1']['KRW-BTC'].index)
         
         
