@@ -15,9 +15,9 @@ class YunjooAlgo(TradeAlgorithm):
         logging.info('init yunjoo algorithm. mode:{}'.format(mode))
         self.queue = Queue()
         if mode == 'release':
-            self.pInfo = PriceInfo(TradeReleaseAPI(), self.queue)
+            self.pInfo = PriceInfo.get_instance(TradeReleaseAPI(), self.queue)
         else:
-            self.pInfo = PriceInfo(TradeDebugAPI, self.queue)
+            self.pInfo = PriceInfo.get_instance(TradeDebugAPI, self.queue)
         self.filter_ticker_list()
 
         self.pInfo.daemon = True

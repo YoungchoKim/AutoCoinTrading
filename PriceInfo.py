@@ -5,7 +5,8 @@ from TimeControl import TimeControl
 
 
 class PriceInfo(threading.Thread) :
-    
+    _instance = None
+
     def __init__(self, TradeApi, queue):
         super(PriceInfo, self).__init__()
         self.tApi = TradeApi
@@ -19,6 +20,12 @@ class PriceInfo(threading.Thread) :
         self.ohlcv = {}
         self.init_ohlcv()
         self.queue.put(self.ohlcv)
+    
+    @classmethod
+    def get_instance(cls, TradeApi, queue):
+        if not cls._instance:
+            cls._instance = PriceInfo(TradeApi, queue)
+        return cls._instance
 
     def get_tickers(self):
         return self.ticker_list
