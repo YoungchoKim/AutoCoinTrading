@@ -15,7 +15,7 @@ class Account:
         self.having_list = self.tApi.get_balances()
         for item in self.having_list:
             if item['currency'] == 'KRW':
-                self.myMoney = item['balance']
+                self.myMoney = float(item['balance'])
                 break
         logging.info('my money : {}'.format(self.myMoney))
         logging.info('Account init success. mode: '.format(mode))
@@ -25,11 +25,11 @@ class Account:
         coin_list = []
         for item in res:
             if item['currency'] == 'KRW':
-                self.myMoney = item['balance']
+                self.myMoney = float(item['balance'])
                 continue
             ticker = 'KRW-{}'.format(item['currency'])
-            cost = item['avg_buy_price']
-            count = item['balance']
+            cost = float(item['avg_buy_price'])
+            count = float(item['balance'])
             state = State.get_bought()
             coin_list.append(Coin(ticker,cost,count,state))
         return coin_list
