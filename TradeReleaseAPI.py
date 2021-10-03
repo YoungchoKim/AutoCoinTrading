@@ -3,6 +3,11 @@ from TradeAPI import TradeAPI
 import requests
 
 class TradeReleaseAPI( TradeAPI ):
+    def __new__(cls):
+        if not hasattr(cls,'instance'):
+            cls.instance = super(TradeReleaseAPI,cls).__new__(cls)
+        return cls.instance
+
     def __init__(self):
         with open('upbit.txt') as f:
             lines = f.readlines()
