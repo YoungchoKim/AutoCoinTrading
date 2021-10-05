@@ -4,8 +4,12 @@ import logging
 import logging.config
 import time
 import State
+from queue import Queue
 from YunjooAlgo import YunjooAlgo
 from nineAlgo import NineAlgo
+from TradeReleaseAPI import TradeReleaseAPI
+from TradeDebugAPI import TradeDebugAPI
+from PriceInfo import PriceInfo
 from TimeControl import TimeControl
 from account import Account
 
@@ -15,8 +19,19 @@ class Controller:
         mode = 'debug'
         TimeControl.set_mode(mode)
         self.account = Account(mode)
-        #self.tAlgo = YunjooAlgo(mode)
-        self.tAlgo = NineAlgo(mode)
+
+        self.queue = Queue()
+        if mode == 'release':
+            self.pInfo = PriceInfo.get_instance(TradeReleaseAPI(), self.queue)
+        else:
+            self.pInfo = PriceInfo.get_instance(TradeDebugAPI, self.queue)
+
+        self.yunjooAlgo = YunjooAlgo(mode, self.pInfo, self.queue)
+        self.nineAlgo = NineAlgo(mode, self.pInfo, self.queue)
+        self.tAlgo = self.yunjooAlgo
+
+        self.pInfo.daemon = True
+        self.pInfo.start()
         self.sleep_time = TimeControl.get_sleep_time()
         self.coin_list = []
 

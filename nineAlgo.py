@@ -1,27 +1,17 @@
 from PriceInfo import PriceInfo
-from TradeReleaseAPI import TradeReleaseAPI
-from TradeDebugAPI import TradeDebugAPI
 from TradeAlgorithm import TradeAlgorithm
 from TimeControl import TimeControl
-from queue import Queue
 from Coin import Coin
 from TradeTicket import TradeTicket
 import State
 import time 
-from TimeControl import TimeControl
 import logging
 
 class NineAlgo(TradeAlgorithm):
-    def __init__(self, mode):
+    def __init__(self, mode, pInfo, queue):
         logging.info('init nine algorithm. mode:{}'.format(mode))
-        self.queue = Queue()
-        if mode == 'release':
-            self.pInfo = PriceInfo.get_instance(TradeReleaseAPI(), self.queue)
-        else:
-            self.pInfo = PriceInfo.get_instance(TradeDebugAPI, self.queue)
-        self.ticker_list = self.pInfo.get_tickers()
-        self.pInfo.daemon = True
-        self.pInfo.start()
+        self.ticker_list = pInfo.get_tickers()
+        self.queue = queue
 
     def check_buy_coin(self, df_day, df_min1, ticker, ticket_list):
         minute = TimeControl.get_min()

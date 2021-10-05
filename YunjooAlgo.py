@@ -1,9 +1,6 @@
-from PriceInfo import PriceInfo
-from TradeReleaseAPI import TradeReleaseAPI
-from TradeDebugAPI import TradeDebugAPI
 from TradeAlgorithm import TradeAlgorithm
-from queue import Queue
 from Coin import Coin
+from PriceInfo import PriceInfo
 from TradeTicket import TradeTicket
 import State
 import time 
@@ -11,17 +8,11 @@ from TimeControl import TimeControl
 import logging
 
 class YunjooAlgo(TradeAlgorithm):
-    def __init__(self, mode):
+    def __init__(self, mode, pInfo,queue):
         logging.info('init yunjoo algorithm. mode:{}'.format(mode))
-        self.queue = Queue()
-        if mode == 'release':
-            self.pInfo = PriceInfo.get_instance(TradeReleaseAPI(), self.queue)
-        else:
-            self.pInfo = PriceInfo.get_instance(TradeDebugAPI, self.queue)
+        self.queue = queue
+        self.pInfo = pInfo
         self.filter_ticker_list()
-
-        self.pInfo.daemon = True
-        self.pInfo.start()
 
     def filter_ticker_list(self):
         self.ticker_list = []
