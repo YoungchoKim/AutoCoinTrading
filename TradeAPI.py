@@ -12,6 +12,9 @@ class TradeAPI:
     def get_orderbook(self, tickers):
         pass
 
+    def get_order(self, ticker, state='wait'):
+        pass
+
     def get_balance(self, ticker):
         pass
 
@@ -30,3 +33,5 @@ class TradeAPI:
     def buy_market_order(self,ticker, balance):
         pass
     
+    def cancel_order(self, uuid):
+        pass

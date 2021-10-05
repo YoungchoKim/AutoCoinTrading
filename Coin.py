@@ -1,9 +1,10 @@
 class Coin:
-    def __init__(self, ticker, cost, count, state):
+    def __init__(self, ticker, cost, count, state, uuid):
         self.ticker = ticker
         self.cost = cost
         self.count = count
         self.state = state
+        self.uuid = uuid
     
     def get_ticker(self):
         return self.ticker
@@ -28,3 +29,9 @@ class Coin:
 
     def set_state(self, state):
         self.state = state
+
+    def get_uuid(self):
+        return self.uuid
+
+    def set_uuid(self, uuid):
+        self.uuid = uuid

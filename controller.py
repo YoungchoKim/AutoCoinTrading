@@ -5,16 +5,18 @@ import logging.config
 import time
 import State
 from YunjooAlgo import YunjooAlgo
+from nineAlgo import NineAlgo
 from TimeControl import TimeControl
 from account import Account
 
 class Controller:
     def __init__(self):
         self.log_init()
-        mode = 'release'
+        mode = 'debug'
         TimeControl.set_mode(mode)
         self.account = Account(mode)
-        self.tAlgo = YunjooAlgo(mode)
+        #self.tAlgo = YunjooAlgo(mode)
+        self.tAlgo = NineAlgo(mode)
         self.sleep_time = TimeControl.get_sleep_time()
         self.coin_list = []
 

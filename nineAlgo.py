@@ -2,6 +2,7 @@ from PriceInfo import PriceInfo
 from TradeReleaseAPI import TradeReleaseAPI
 from TradeDebugAPI import TradeDebugAPI
 from TradeAlgorithm import TradeAlgorithm
+from TimeControl import TimeControl
 from queue import Queue
 from Coin import Coin
 from TradeTicket import TradeTicket
@@ -10,53 +11,48 @@ import time
 from TimeControl import TimeControl
 import logging
 
-class YunjooAlgo(TradeAlgorithm):
+class NineAlgo(TradeAlgorithm):
     def __init__(self, mode):
-        logging.info('init yunjoo algorithm. mode:{}'.format(mode))
+        logging.info('init nine algorithm. mode:{}'.format(mode))
         self.queue = Queue()
         if mode == 'release':
             self.pInfo = PriceInfo.get_instance(TradeReleaseAPI(), self.queue)
         else:
             self.pInfo = PriceInfo.get_instance(TradeDebugAPI, self.queue)
-        self.filter_ticker_list()
-
+        self.ticker_list = self.pInfo.get_tickers()
         self.pInfo.daemon = True
         self.pInfo.start()
 
-    def filter_ticker_list(self):
-        self.ticker_list = []
-        cur_price_dict = self.pInfo.get_current_price()
-        for k,v in cur_price_dict.items():
-            if v >= 300:
-                self.ticker_list.append(k)
-        self.pInfo.set_tickers(self.ticker_list)
-        logging.info('ticker list:{}, len:{}'.format(self.ticker_list, len(self.ticker_list)))
-
     def check_buy_coin(self, df_day, df_min1, ticker, ticket_list):
-        success = True
-
-        before25 = df_day.iloc[0, 3]
-        before5 = df_day.iloc[19, 3]
-        current = df_min1.iloc[0, 3]
-        if before25 * 0.8 < before5:
-            return
-        
-        for idx in range(20,25):
-            before = df_day.iloc[idx-1, 3]
-            current = df_day.iloc[idx, 3]
+        minute = TimeControl.get_min()
+        if minute[-8:] > '09:35:00' or minute[-8:] < '08:45:00':
+            return None
+        if minute[-8:] == '08:45:00':
+            before = df_day.iloc[0, 3]
+            current = df_min1.iloc[0, 3]
             if before > current:
-                success = False
-                break
-        if success == False:
-            return
-        
-        if current > (before25 + before5)/2:
-            return
-
-        coin = Coin(ticker, 0, 0, State.get_waitBuy(), None)
-        ticket_list.append(TradeTicket('buy', 'market', 0, coin))
+                return None
+            coin = Coin(ticker, 0, 0, State.get_waitBuy(), None)
+            ticket_list.append(TradeTicket('buy', 'market', 0, coin))
+            print(minute)
 
     def check_sell_coin(self, ticker, ticket_list, have_coin_list):
+        minute = TimeControl.get_min()
+        if minute[-8:] == '09:34:00':
+            for coin in have_coin_list:
+                if coin.get_ticker() == ticker and coin.get_uuid() != None:
+                    ticket_list.append(TradeTicket('sell', 'cancel', 0, coin))
+                    break
+            return None
+        if minute[-8:] == '09:35:00':
+            for coin in have_coin_list:
+                if coin.get_ticker() == ticker and coin.get_uuid() == None:
+                    ticket_list.append(TradeTicket('sell', 'market', 0, coin))
+                    break
+            return None
+        if minute[-8:] > '09:35:00':
+            return None
+
         for coin in have_coin_list:
             if coin.get_ticker() == ticker and coin.get_state() == State.get_bought():
                 limit_cost = coin.get_cost() * 1.05
@@ -70,10 +66,13 @@ class YunjooAlgo(TradeAlgorithm):
         for ticker in self.ticker_list:
             df_day = self.ohlcv['day'][ticker]
             df_min1 = self.ohlcv['min1'][ticker]
-            if 'error' in df_day or 'error' in df_min1:
+            if 'error' in df_day:
                 logging.info(df_day['error'])
                 continue
-            df_day = df_day.tail(25)
+            if 'error' in df_min1:
+                logging.info(df_min1['error'])
+                continue
+            df_day = df_day.tail(1)
             df_min1 = df_day.tail(1)
             if ticker not in [coin.get_ticker() for coin in have_coin_list]:
                 self.check_buy_coin(df_day, df_min1, ticker, ticket_list)
@@ -83,9 +82,3 @@ class YunjooAlgo(TradeAlgorithm):
             logging.info(ticket_list)
         return ticket_list
 
-if __name__=='__main__':
-    yj = YunjooAlgo('release')
-    while True:
-        tradeTicket_list = yj.get_tradeTicket_list()
-        
-        time.sleep(TimeControl.get_sleep_time()['while'])

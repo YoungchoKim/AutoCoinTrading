@@ -109,6 +109,9 @@ class TradeDebugAPI( TradeAPI ):
     def get_orderbook(cls, tickers):
         res = pyupbit.get_orderbook(tickers)
         return res
+
+    def get_order(cls, ticker, state='wait'):
+        pass
     
     @classmethod
     def get_balance(cls, ticker):
@@ -129,7 +132,7 @@ class TradeDebugAPI( TradeAPI ):
     @classmethod
     def sell_limit_order(cls,ticker, cost, count):
         cls.sell_dict[ticker]  = (cost, count)
-        return cls.sell_dict
+        return {'uuid':ticker}
 
     @classmethod
     def buy_limit_order(cls,ticker, cost, count):
@@ -150,6 +153,11 @@ class TradeDebugAPI( TradeAPI ):
         cls.have_dict[ticker] = (cost, count)
         cls.balance -= cost * count
         return cls.have_dict
+
+    @classmethod
+    def cancel_order(cls, uuid):
+        del cls.sell_dict[uuid]
+        return uuid
 
 if __name__ == '__main__':
     dApi = TradeDebugAPI()

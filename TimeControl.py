@@ -55,9 +55,11 @@ class TimeControl:
         if cls.mode == 'release':
             sleep_time['while'] = 1
             sleep_time['ohlcv'] = 0.05
+            sleep_time['account'] = 0.1
         elif cls.mode == 'debug':
             sleep_time['while'] = 0
             sleep_time['ohlcv'] = 0
+            sleep_time['account'] = 0
 
         return sleep_time
 

@@ -31,6 +31,10 @@ class TradeReleaseAPI( TradeAPI ):
         res = pyupbit.get_orderbook(tickers)
         return res
 
+    def get_order(self, ticker, state = 'wait'):
+        res = self.upbit.get_order(ticker, state)
+        return res
+
     def get_balance(self, ticker):
         res = self.upbit.get_balance(ticker)
         return res
@@ -55,4 +59,6 @@ class TradeReleaseAPI( TradeAPI ):
         res = self.upbit.buy_market_order(ticker, balance)
         return res
 
-
+    def cancel_order(self, uuid):
+        res = self.upbit.cancel_order(uuid)
+        return res

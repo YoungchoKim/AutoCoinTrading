@@ -2,6 +2,8 @@ from collections import defaultdict
 from TradeReleaseAPI import TradeReleaseAPI
 from TradeDebugAPI import TradeDebugAPI
 from Coin import Coin
+from TimeControl import TimeControl
+import time
 import State, priceQuotation
 import logging
 class Account:
@@ -31,28 +33,46 @@ class Account:
             cost = float(item['avg_buy_price'])
             count = float(item['balance'])
             state = State.get_bought()
-            coin_list.append(Coin(ticker,cost,count,state))
+            coin_list.append(Coin(ticker,cost,count,state,None))
         return coin_list
 
     def request_order(self, ticket_list):
         for ticket in ticket_list:
+            time.sleep(TimeControl.get_sleep_time()['account'])
             if ticket.get_order() == 'buy':
                 if ticket.get_order_type() == 'market':
                     balance = priceQuotation.get_price(self.myMoney * 0.3)
                     res = self.tApi.buy_market_order(ticket.get_coin().get_ticker(), balance)
-                    logging.info(res)
+                    if 'error' in res:
+                        logging.info(res)
+                        continue
 
                 elif ticket.get_order_type() == 'limit':
                     pass
 
             elif ticket.get_order() == 'sell':
                 if ticket.get_order_type == 'market':
-                    pass
+                    count = ticket.get_coin().get_count()
+                    res = self.tApi.sell_market_order(ticket.get_coin().get_ticker(), count)
+                    if 'error' in res:
+                        logging.info(res)
+                        continue
 
                 elif ticket.get_order_type() == 'limit':
                     #print('sell',ticker)
                     count = ticket.get_coin().get_count()
                     limit_cost = priceQuotation.get_price(ticket.get_limit_cost())
                     res = self.tApi.sell_limit_order(ticket.get_coin().get_ticker(),limit_cost, count)
-                    logging.info(res)
-            
+                    if 'error' in res:
+                        logging.info(res)
+                        continue
+                    ticket.get_coin().set_uuid(res['uuid'])
+
+                elif ticket.get_order_type() == 'cancel':
+                    uuid = ticket.get_coin().get_uuid()
+                    res = self.tApi.cancel_order(uuid)
+                    if 'error' in res:
+                        logging.info(res)
+                        continue
+                    ticket.get_coin().set_uuid(None)
+    
