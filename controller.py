@@ -7,8 +7,8 @@ import State
 from queue import Queue
 from YunjooAlgo import YunjooAlgo
 from nineAlgo import NineAlgo
-from TradeReleaseAPI import TradeReleaseAPI
-from TradeDebugAPI import TradeDebugAPI
+from quotationRelApi import QuotationRelApi
+from quotationDebugApi import QuotationDebugApi
 from PriceInfo import PriceInfo
 from TimeControl import TimeControl
 from account import Account
@@ -16,19 +16,20 @@ from account import Account
 class Controller:
     def __init__(self):
         self.log_init()
-        mode = 'debug'
+        mode = 'release'
         TimeControl.set_mode(mode)
         self.account = Account(mode)
 
         self.queue = Queue()
         if mode == 'release':
-            self.pInfo = PriceInfo.get_instance(TradeReleaseAPI(), self.queue)
+            self.pInfo = PriceInfo.get_instance(QuotationRelApi(), self.queue)
         else:
-            self.pInfo = PriceInfo.get_instance(TradeDebugAPI, self.queue)
+            QuotationDebugApi.init()
+            self.pInfo = PriceInfo.get_instance(QuotationDebugApi, self.queue)
 
         self.yunjooAlgo = YunjooAlgo(mode, self.pInfo, self.queue)
         self.nineAlgo = NineAlgo(mode, self.pInfo, self.queue)
-        self.tAlgo = self.yunjooAlgo
+        self.tAlgo = self.nineAlgo
 
         self.pInfo.daemon = True
         self.pInfo.start()

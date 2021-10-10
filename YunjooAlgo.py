@@ -30,18 +30,21 @@ class YunjooAlgo(TradeAlgorithm):
         before5 = df_day.iloc[19, 3]
         current = df_min1.iloc[0, 3]
         if before25 * 0.8 < before5:
+            #print(ticker, 'expensive fail')
             return
         
         for idx in range(20,25):
-            before = df_day.iloc[idx-1, 3]
-            current = df_day.iloc[idx, 3]
-            if before > current:
+            bebefore = df_day.iloc[idx-1, 3]
+            before = df_day.iloc[idx, 3]
+            if bebefore > before:
                 success = False
                 break
         if success == False:
+            #print(ticker, 'continuos 5days fail')
             return
         
         if current > (before25 + before5)/2:
+            #print(ticker, 'current cost is fail')
             return
 
         coin = Coin(ticker, 0, 0, State.get_waitBuy(), None)

@@ -1,4 +1,3 @@
-import TradeAPI
 import threading
 import time 
 from TimeControl import TimeControl
@@ -7,12 +6,12 @@ from TimeControl import TimeControl
 class PriceInfo(threading.Thread) :
     _instance = None
 
-    def __init__(self, TradeApi, queue):
+    def __init__(self, quotationApi, queue):
         super(PriceInfo, self).__init__()
-        self.tApi = TradeApi
+        self.quotationApi = quotationApi
         self.queue = queue
-        self.ticker_list = self.tApi.get_tickers('KRW')
-        self.cur_price_dict = self.tApi.get_current_price(self.ticker_list)
+        self.ticker_list = self.quotationApi.get_tickers('KRW')
+        self.cur_price_dict = self.quotationApi.get_current_price(self.ticker_list)
         self.sleep_time = TimeControl.get_sleep_time()
         
         self.date = TimeControl.get_min()
@@ -36,12 +35,12 @@ class PriceInfo(threading.Thread) :
     def init_ohlcv(self):
         self.ohlcv['day'] = {}
         for ticker in self.ticker_list:
-            self.ohlcv['day'][ticker] = self.tApi.get_ohlcv(ticker, 200, 'day', self.date)
+            self.ohlcv['day'][ticker] = self.quotationApi.get_ohlcv(ticker, 200, 'day', self.date)
             time.sleep(self.sleep_time['ohlcv'])
 
         self.ohlcv['min1'] = {}
         for ticker in self.ticker_list:
-            self.ohlcv['min1'][ticker] = self.tApi.get_ohlcv(ticker, 200, 'minute1', self.date)
+            self.ohlcv['min1'][ticker] = self.quotationApi.get_ohlcv(ticker, 200, 'minute1', self.date)
             time.sleep(self.sleep_time['ohlcv'])
     
     def get_current_price(self):
@@ -53,7 +52,7 @@ class PriceInfo(threading.Thread) :
             minute = TimeControl.get_min()
             if minute[-8:] == '10:00:00':
                 for ticker in self.ticker_list:
-                    res = self.tApi.get_ohlcv(ticker, 200, 'day', minute)
+                    res = self.quotationApi.get_ohlcv(ticker, 200, 'day', minute)
                     self.ohlcv['day'][ticker] = res
                     time.sleep(self.sleep_time['ohlcv'])
                 self.queue.put(self.ohlcv)
@@ -62,7 +61,7 @@ class PriceInfo(threading.Thread) :
             if self.date != minute:
                 self.date = minute
                 for ticker in self.ticker_list:
-                    res = self.tApi.get_ohlcv(ticker, 200, 'minute1', self.date)
+                    res = self.quotationApi.get_ohlcv(ticker, 200, 'minute1', self.date)
                     #TODO: if get ohlcv is failed... do not put in queue
                     self.ohlcv['min1'][ticker] = res
                     time.sleep(self.sleep_time['ohlcv'])

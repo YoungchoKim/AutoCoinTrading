@@ -1,6 +1,6 @@
 from collections import defaultdict
-from TradeReleaseAPI import TradeReleaseAPI
-from TradeDebugAPI import TradeDebugAPI
+from exchangeRelApi import ExchangeRelApi
+from exchangeDebugApi import ExchangeDebugApi
 from Coin import Coin
 from TimeControl import TimeControl
 import time
@@ -10,15 +10,16 @@ class Account:
 
     def __init__(self, mode):
         if mode == 'release':
-            self.tApi = TradeReleaseAPI()
+            self.tApi = ExchangeRelApi()
         elif mode == 'debug' :
-            TradeDebugAPI.init()
-            self.tApi = TradeDebugAPI
+            ExchangeDebugApi.init()
+            self.tApi = ExchangeDebugApi
         self.having_list = self.tApi.get_balances()
         for item in self.having_list:
             if item['currency'] == 'KRW':
                 self.myMoney = float(item['balance'])
                 break
+        self.ratio = 0.1
         logging.info('my money : {}'.format(self.myMoney))
         logging.info('Account init success. mode: '.format(mode))
 
@@ -41,7 +42,7 @@ class Account:
             time.sleep(TimeControl.get_sleep_time()['account'])
             if ticket.get_order() == 'buy':
                 if ticket.get_order_type() == 'market':
-                    balance = priceQuotation.get_price(self.myMoney * 0.3)
+                    balance = priceQuotation.get_price(self.myMoney * self.ratio)
                     res = self.tApi.buy_market_order(ticket.get_coin().get_ticker(), balance)
                     if 'error' in res:
                         logging.info(res)
@@ -51,7 +52,7 @@ class Account:
                     pass
 
             elif ticket.get_order() == 'sell':
-                if ticket.get_order_type == 'market':
+                if ticket.get_order_type() == 'market':
                     count = ticket.get_coin().get_count()
                     res = self.tApi.sell_market_order(ticket.get_coin().get_ticker(), count)
                     if 'error' in res:
