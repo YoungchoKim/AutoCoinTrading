@@ -25,6 +25,8 @@ class YunjooAlgo(TradeAlgorithm):
 
     def check_buy_coin(self, df_day, df_min1, ticker, ticket_list):
         success = True
+        if len(df_day) < 25:
+            return
 
         before25 = df_day.iloc[0, 3]
         before5 = df_day.iloc[19, 3]

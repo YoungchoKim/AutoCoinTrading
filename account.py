@@ -20,8 +20,12 @@ class Account:
                 self.myMoney = float(item['balance'])
                 break
         self.ratio = 0.1
+        logging.info('my initial ratio : {}'.format(self.ratio))
         logging.info('my money : {}'.format(self.myMoney))
         logging.info('Account init success. mode: '.format(mode))
+
+    def set_ratio(self, ratio):
+        self.ratio = ratio
 
     def get_have_coin_list(self):
         res = self.tApi.get_balances()
@@ -76,4 +80,7 @@ class Account:
                         logging.info(res)
                         continue
                     ticket.get_coin().set_uuid(None)
-    
+
+    def print_total(self):
+        self.tApi.print_total()
+

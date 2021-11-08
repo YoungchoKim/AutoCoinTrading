@@ -15,15 +15,38 @@ class ExchangeDebugApi( ExchangeApi ):
         cls.buy_dict = {}
         cls.sell_dict = {}
 
+        cls.price_info_init()
+
+    @classmethod
+    def price_info_init(cls):
+        with open('debug/ticker_list') as f:
+            lines = f.readlines()
+            cls.ticker_list = lines[0].strip().split(',')
+        cls.df = {}
+        cls.df['day'] = {}
+        cls.df['min1'] = {}
+
+        for ticker in cls.ticker_list:
+            cls.df['day'][ticker] = pd.read_csv('debug/day-{}.csv'.format(ticker), index_col=[0])
+        for ticker in cls.ticker_list:
+            cls.df['min1'][ticker] = pd.read_csv('debug/min1-{}.csv'.format(ticker), index_col=[0])
+
+        cls.max_len = len(cls.df['min1']['KRW-BTC'])
+        print('max_len : ', cls.max_len)
+        cls.min1 = cls.df['min1']['KRW-BTC'].index[200]
+        cls.day = cls.df['day']['KRW-BTC'].index[200]
+        print('exchange debug api price_info_init success')
+
     @classmethod
     def check_sell_dict(cls):
         if len(cls.sell_dict) == 0:
             return
+        debug_idx = TimeControl.get_debug_idx()
         success_ticker = []
         for ticker, value in cls.sell_dict.items():
             cost, count = value
-            high = cls.df['min1'][ticker].iloc[cls.min_idx, 1]
-            low = cls.df['min1'][ticker].iloc[cls.min_idx, 2]
+            high = cls.df['min1'][ticker].iloc[debug_idx, 1]
+            low = cls.df['min1'][ticker].iloc[debug_idx, 2]
             if cost <= high:
                 cls.balance += cost * count
                 success_ticker.append(ticker)
@@ -34,11 +57,12 @@ class ExchangeDebugApi( ExchangeApi ):
     def check_buy_dict(cls):
         if len(cls.buy_dict) == 0:
             return
+        debug_idx = TimeControl.get_debug_idx()
         success_ticker = []
         for ticker, value in cls.buy_dict.items():
             cost, count = value
-            high = cls.df['min1'][ticker].iloc[cls.min_idx, 1]
-            low = cls.df['min1'][ticker].iloc[cls.min_idx, 2]
+            high = cls.df['min1'][ticker].iloc[debug_idx, 1]
+            low = cls.df['min1'][ticker].iloc[debug_idx, 2]
             if cost >= low :
                 cls.balance -= cost * count
                 success_ticker.append(ticker)
@@ -77,15 +101,20 @@ class ExchangeDebugApi( ExchangeApi ):
 
     @classmethod
     def sell_market_order(cls,ticker, count):
-        cost = cls.df['min1'][ticker].iloc[cls.min_idx, 3]
-        have_dict.pop(ticker)
+        debug_idx = TimeControl.get_debug_idx()
+        cost = cls.df['min1'][ticker].iloc[debug_idx, 3]
+        cls.have_dict.pop(ticker)
         cls.balance += cost * count
-        return cls.balance
+        return cls.have_dict
 
     @classmethod
     def buy_market_order(cls,ticker, balance):
-        cost = cls.df['min1'][ticker].iloc[cls.min_idx, 3]
+        debug_idx = TimeControl.get_debug_idx()
+        cost = cls.df['min1'][ticker].iloc[debug_idx, 3]
         count = balance / cost
+        if cls.balance < cost * count:
+            return cls.have_dict
+
         cls.have_dict[ticker] = (cost, count)
         cls.balance -= cost * count
         return cls.have_dict
@@ -93,7 +122,20 @@ class ExchangeDebugApi( ExchangeApi ):
     @classmethod
     def cancel_order(cls, uuid):
         del cls.sell_dict[uuid]
-        return uuid
+        return cls.sell_dict
+    
+    @classmethod
+    def print_total(cls):
+        print('balance: {}'.format(cls.balance))
+        logging.info('balance: {}'.format(cls.balance))
+        for tick,value in cls.have_dict.items():
+            cost, cnt = value
+            print('{} cost: {}, count: {}'.format(tick, cost, cnt))
+            logging.info('{} cost: {}, count: {}'.format(tick, cost, cnt))
+            cls.balance += cnt * cls.df['min1'][tick].iloc[-1, 3]
+        print('total: {}'.format(cls.balance))
+        logging.info('total: {}'.format(cls.balance))
+
 
 if __name__ == '__main__':
     print(dApi.ticker_list)
